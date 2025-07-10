@@ -65,7 +65,7 @@
         didOpen: () => Swal.showLoading()
       });
 
-      const res = await fetch("https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/checkout", {
+      const res = await fetch("https://63207fd07716.ngrok-free.app/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -74,7 +74,6 @@
       const result = await res.json();
 
       if (res.ok) {
-        // ✅ simpan data ke localStorage
         localStorage.setItem("checkoutData", JSON.stringify(data));
 
         Swal.fire({
@@ -87,7 +86,7 @@
 
         const checkInterval = setInterval(async () => {
           try {
-            const checkRes = await fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/status/${id}`);
+            const checkRes = await fetch(`https://63207fd07716.ngrok-free.app/api/status/${id}`);
             const checkData = await checkRes.json();
 
             if (checkRes.ok && checkData.status === "paid") {
@@ -98,7 +97,7 @@
                 text: 'Pesanan kamu sudah dibayar dan akan segera diproses.',
                 confirmButtonText: 'Lanjut'
               }).then(() => {
-                  window.location.href =                   `sukses.html?id=${id}`;
+                  window.location.href = `sukses.html?id=${id}`;
               });
             }
           } catch (err) {
