@@ -1,116 +1,132 @@
 <script>
-  const url = new URLSearchParams(window.location.search);
-  const nama = url.get("nama");
-  const harga = parseInt(url.get("harga"));
-  const stok = parseInt(url.get("stok"));
+  let BASE_URL = "";
 
-  const inputNama = document.getElementById("nama");
-  const inputHarga = document.getElementById("harga");
-  const inputJumlah = document.getElementById("jumlah");
-  const inputTotal = document.getElementById("total");
-
-  inputNama.value = nama;
-  inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
-  inputJumlah.max = stok;
-
-  inputJumlah.addEventListener("input", updateTotal);
-
-  function updateTotal() {
-    const jumlah = parseInt(inputJumlah.value);
-    if (isNaN(jumlah) || jumlah <= 0) {
-      inputTotal.value = "Rp0";
-    } else {
-      const total = harga * jumlah;
-      inputTotal.value = `Rp${total.toLocaleString("id-ID")}`;
-    }
+  // ambil URL backend dari backend.txt
+  async function loadBackendURL() {
+    const res = await fetch("backend.txt");
+    const text = await res.text();
+    BASE_URL = text.trim();
   }
 
-  document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  async function initCheckout() {
+    const url = new URLSearchParams(window.location.search);
+    const nama = url.get("nama");
+    const harga = parseInt(url.get("harga"));
+    const stok = parseInt(url.get("stok"));
 
-    const nickname = document.getElementById("nickname").value.trim();
-    const nowa = document.getElementById("nowa").value.trim();
-    const jumlah = parseInt(document.getElementById("jumlah").value);
-    const metode = document.getElementById("metode").value;
+    const inputNama = document.getElementById("nama");
+    const inputHarga = document.getElementById("harga");
+    const inputJumlah = document.getElementById("jumlah");
+    const inputTotal = document.getElementById("total");
 
-    if (!nickname || !nowa || isNaN(jumlah) || jumlah <= 0) {
-      Swal.fire("Gagal", "Mohon lengkapi semua data dengan benar.", "error");
-      return;
+    inputNama.value = nama;
+    inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
+    inputJumlah.max = stok;
+
+    inputJumlah.addEventListener("input", updateTotal);
+
+    function updateTotal() {
+      const jumlah = parseInt(inputJumlah.value);
+      if (isNaN(jumlah) || jumlah <= 0) {
+        inputTotal.value = "Rp0";
+      } else {
+        const total = harga * jumlah;
+        inputTotal.value = `Rp${total.toLocaleString("id-ID")}`;
+      }
     }
 
-    if (!/^08\d{8,13}$/.test(nowa)) {
-      Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format: 08xxxxxxxxxx", "error");
-      return;
-    }
+    document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    const total = harga * jumlah;
-    const id = crypto.randomUUID();
+      const nickname = document.getElementById("nickname").value.trim();
+      const nowa = document.getElementById("nowa").value.trim();
+      const jumlah = parseInt(document.getElementById("jumlah").value);
+      const metode = document.getElementById("metode").value;
 
-    const data = {
-      id,
-      nickname,
-      nowa,
-      nama_produk: nama,
-      jumlah,
-      metode,
-      total,
-      status: "pending"
-    };
+      if (!nickname || !nowa || isNaN(jumlah) || jumlah <= 0) {
+        Swal.fire("Gagal", "Mohon lengkapi semua data dengan benar.", "error");
+        return;
+      }
 
-    try {
-      Swal.fire({
-        title: 'Memproses...',
-        html: 'Sedang mengirim data ke server...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-      });
+      if (!/^08\d{8,13}$/.test(nowa)) {
+        Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format: 08xxxxxxxxxx", "error");
+        return;
+      }
 
-      const res = await fetch("https://63207fd07716.ngrok-free.app/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
+      const total = harga * jumlah;
+      const id = crypto.randomUUID();
 
-      const result = await res.json();
+      const data = {
+        id,
+        nickname,
+        nowa,
+        nama_produk: nama,
+        jumlah,
+        metode,
+        total,
+        status: "pending"
+      };
 
-      if (res.ok) {
-        localStorage.setItem("checkoutData", JSON.stringify(data));
-
+      try {
         Swal.fire({
-          icon: 'info',
-          title: 'Menunggu Pembayaran',
-          html: 'Data kamu sudah dikirim. Mohon tunggu konfirmasi dari admin...',
+          title: 'Memproses...',
+          html: 'Sedang mengirim data ke server...',
           allowOutsideClick: false,
-          showConfirmButton: false
+          didOpen: () => Swal.showLoading()
         });
 
-        const checkInterval = setInterval(async () => {
-          try {
-            const checkRes = await fetch(`https://63207fd07716.ngrok-free.app/api/status/${id}`);
-            const checkData = await checkRes.json();
+        const res = await fetch(`${BASE_URL}/api/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
 
-            if (checkRes.ok && checkData.status === "paid") {
-              clearInterval(checkInterval);
-              Swal.fire({
-                icon: 'success',
-                title: 'Pembayaran Berhasil!',
-                text: 'Pesanan kamu sudah dibayar dan akan segera diproses.',
-                confirmButtonText: 'Lanjut'
-              }).then(() => {
-                  window.location.href = `sukses.html?id=${id}`;
-              });
+        const result = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("checkoutData", JSON.stringify(data));
+
+          Swal.fire({
+            icon: 'info',
+            title: 'Menunggu Pembayaran',
+            html: 'Data kamu sudah dikirim. Mohon tunggu konfirmasi dari admin...',
+            allowOutsideClick: false,
+            showConfirmButton: false
+          });
+
+          const checkInterval = setInterval(async () => {
+            try {
+              const checkRes = await fetch(`${BASE_URL}/api/status/${id}`);
+              const checkData = await checkRes.json();
+
+              if (checkRes.ok && checkData.status === "paid") {
+                clearInterval(checkInterval);
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Pembayaran Berhasil!',
+                  text: 'Pesanan kamu sudah dibayar dan akan segera diproses.',
+                  confirmButtonText: 'Lanjut'
+                }).then(() => {
+                    window.location.href = `sukses.html?id=${id}`;
+                });
+              }
+            } catch (err) {
+              console.error("Gagal cek status:", err);
             }
-          } catch (err) {
-            console.error("Gagal cek status:", err);
-          }
-        }, 3000);
-      } else {
-        Swal.fire("Gagal", result.message || "Gagal checkout", "error");
+          }, 3000);
+        } else {
+          Swal.fire("Gagal", result.message || "Gagal checkout", "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Terjadi kesalahan saat mengirim data.", "error");
       }
-    } catch (err) {
-      Swal.fire("Error", "Terjadi kesalahan saat mengirim data.", "error");
-    }
-  });
+    });
 
-  updateTotal();
+    updateTotal();
+  }
+
+  // mulai dari sini
+  loadBackendURL().then(() => {
+    initCheckout();
+  });
 </script>
