@@ -109,18 +109,19 @@
     }
   </style>
   <script>
+    let BASE = "";
+
+    async function loadBackendURL() {
+      const res = await fetch("backend.txt");
+      BASE = (await res.text()).trim();
+    }
+
     function checkout(nama, harga, stok) {
       if (!nama || !harga || !stok || stok <= 0) {
         alert("Data tidak valid atau stok kosong!");
         return;
       }
-
-      const params = new URLSearchParams({
-        nama: nama,
-        harga: harga,
-        stok: stok
-      });
-
+      const params = new URLSearchParams({ nama, harga, stok });
       window.open("payment.html?" + params.toString(), "_blank");
     }
 
@@ -130,7 +131,7 @@
 
     async function loadProduk() {
       try {
-        const res = await fetch("https://63207fd07716.ngrok-free.app/api/produk");
+        const res = await fetch(`${BASE}/api/produk`);
         const data = await res.json();
         const container = document.querySelector(".item-list");
         container.innerHTML = "";
@@ -138,7 +139,6 @@
         data.forEach(produk => {
           const card = document.createElement("div");
           card.className = "item-card";
-
           card.innerHTML = `
             <img src="${produk.gambar || 'https://via.placeholder.com/150/8e2de2/ffffff?text=ZYEN+STORE'}" alt="${produk.nama}">
             <p class="item-name">${produk.nama}</p>
@@ -152,16 +152,19 @@
               ${produk.stok <= 0 ? "❌ Stok Habis" : "💬 Beli Sekarang"}
             </button>
           `;
-
           container.appendChild(card);
         });
 
       } catch (err) {
         console.error("Gagal memuat produk:", err);
+        document.querySelector(".item-list").innerHTML = "<p>Gagal memuat produk!</p>";
       }
     }
 
-    window.onload = loadProduk;
+    window.onload = async () => {
+      await loadBackendURL();
+      await loadProduk();
+    };
   </script>
 </head>
 <body>
