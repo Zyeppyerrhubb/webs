@@ -93,7 +93,13 @@
   </table>
 
   <script>
-    const API_URL = "https://63207fd07716.ngrok-free.app";
+    let API_URL = "";
+
+    async function getBackendURL() {
+      const res = await fetch("backend.txt");
+      const text = await res.text();
+      API_URL = text.trim();
+    }
 
     async function fetchPesanan() {
       try {
@@ -157,8 +163,11 @@
       });
     }
 
-    fetchPesanan();
-    setInterval(fetchPesanan, 5000);
+    // mulai dari sini
+    getBackendURL().then(() => {
+      fetchPesanan();
+      setInterval(fetchPesanan, 5000);
+    });
   </script>
 </body>
 </html>
