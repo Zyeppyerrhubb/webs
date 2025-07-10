@@ -83,7 +83,13 @@
   <div class="produk-list" id="produkList">Loading...</div>
 
   <script>
-    const baseURL = "backend.txt";
+    let baseURL = "";
+
+    async function getBackendURL() {
+      const res = await fetch("backend.txt");
+      const text = await res.text();
+      baseURL = text.trim();
+    }
 
     async function tambahProduk() {
       const nama = document.getElementById("nama").value.trim();
@@ -130,7 +136,8 @@
       });
     }
 
-    loadProduk();
+    // Load URL dari backend.txt dulu baru load data
+    getBackendURL().then(loadProduk);
   </script>
 </body>
 </html>
