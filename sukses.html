@@ -110,7 +110,9 @@
       throw new Error("ID tidak ditemukan");
     }
 
-    fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/status/${id}`)
+    const BASE_URL = "https://63207fd07716.ngrok-free.app";
+
+    fetch(`${BASE_URL}/api/status/${id}`)
       .then(res => res.json())
       .then(async (statusData) => {
         if (statusData.status !== "berhasil") {
@@ -118,7 +120,7 @@
           return;
         }
 
-        const allOrders = await fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/admin/pesanan`);
+        const allOrders = await fetch(`${BASE_URL}/api/admin/pesanan`);
         const orders = await allOrders.json();
         const order = orders.find(o => o.id === id);
 
