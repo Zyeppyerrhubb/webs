@@ -1,0 +1,159 @@
+body {
+  font-family: 'Poppins', sans-serif;
+}
+.item-card p, .buy-btn {
+  font-weight: 600; /* lebih tebal */
+}
+
+header {
+  background: #222;
+  color: white;
+  padding: 20px;
+}
+
+.logo-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.search-login button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: #fff;
+  color: #222;
+  cursor: pointer;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.banner-text {
+  max-width: 60%;
+}
+
+.download-btn {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  margin-top: 10px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.banner-img {
+  max-width: 30%;
+  border-radius: 10px;
+}
+
+.tab-menu {
+  display: flex;
+  background: #eee;
+  justify-content: center;
+  padding: 10px;
+}
+
+.tab {
+  margin: 0 10px;
+  padding: 10px 20px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.tab.active {
+  background: #ddd;
+  font-weight: bold;
+}
+
+.item-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+..item-card {
+  background: linear-gradient(135deg, #5f00ba, #2d0073); /* ungu galaxy */
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease;
+}
+
+.item-card:hover {
+  transform: scale(1.03); /* efek hover */
+}
+
+.buy-btn {
+  margin-top: 10px;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-text {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background-color: rgba(0,0,0,0.7);
+  color: white;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('galaxy.jpg'); /* Nama file setelah disimpan */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: #ffffff;
+}
+.item-card {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.item-card:active {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #9d4edd; /* efek cahaya saat ditekan */
+}
+.item-card {
+    background: linear-gradient(135deg, #5f00ba, #2d0073);
+    box-shadow:
+        0 0 10px rgba(157, 78, 221, 0.5),
+        0 0 20px rgba(157, 78, 221, 0.4),
+        0 0 30px rgba(157, 78, 221, 0.3);
+}
+.item-card:hover {
+    transform: scale(1.03);
+    box-shadow:
+        0 0 15px rgba(157, 78, 221, 0.6),
+        0 0 25px rgba(157, 78, 221, 0.5),
+        0 0 35px rgba(157, 78, 221, 0.4);
+}

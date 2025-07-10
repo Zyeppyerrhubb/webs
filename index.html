@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZYEN STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #2a003f, #4a0072);
+      color: white;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-weight: bold;
+      font-size: 24px;
+      color: white;
+    }
+    .contact-btn, .login-btn {
+      background-color: #8e2de2;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      margin-left: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-menu {
+      text-align: center;
+      background: #300049;
+      padding: 10px;
+    }
+    .tab {
+      background: #5e00a6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: default;
+    }
+    .item-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+    }
+    .item-card {
+      background: linear-gradient(135deg, #5f00ba, #2d0073);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      width: 200px;
+      text-align: center;
+      box-shadow:
+        0 0 10px rgba(157, 78, 221, 0.5),
+        0 0 20px rgba(157, 78, 221, 0.4),
+        0 0 30px rgba(157, 78, 221, 0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .item-card:hover {
+      transform: scale(1.05);
+      box-shadow:
+        0 0 15px rgba(157, 78, 221, 0.6),
+        0 0 25px rgba(157, 78, 221, 0.5),
+        0 0 35px rgba(157, 78, 221, 0.4);
+    }
+    .item-card img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .item-name {
+      font-weight: 700;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .item-price, .item-stock {
+      margin: 4px 0;
+      font-weight: 600;
+    }
+    .buy-btn {
+      background: #28a745;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      margin-top: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+    .buy-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    @media screen and (max-width: 600px) {
+      .item-card {
+        width: 100%;
+      }
+    }
+  </style>
+  <script>
+    function checkout(nama, harga, stok) {
+      if (!nama || !harga || !stok || stok <= 0) {
+        alert("Data tidak valid atau stok kosong!");
+        return;
+      }
+
+      const params = new URLSearchParams({
+        nama: nama,
+        harga: harga,
+        stok: stok
+      });
+
+      window.open("payment.html?" + params.toString(), "_blank");
+    }
+
+    function hubungiAdmin() {
+      window.open("https://wa.me/6287814897547?text=Halo%20admin,%20saya%20butuh%20bantuan", "_blank");
+    }
+
+    async function loadProduk() {
+      try {
+        const res = await fetch("https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/produk");
+        const data = await res.json();
+        const container = document.querySelector(".item-list");
+        container.innerHTML = "";
+
+        data.forEach(produk => {
+          const card = document.createElement("div");
+          card.className = "item-card";
+
+          card.innerHTML = `
+            <img src="${produk.gambar || 'https://via.placeholder.com/150/8e2de2/ffffff?text=ZYEN+STORE'}" alt="${produk.nama}">
+            <p class="item-name">${produk.nama}</p>
+            <p class="item-price">Rp${produk.harga.toLocaleString("id-ID")}</p>
+            <p class="item-stock">Stok: ${produk.stok > 0 ? produk.stok : 'Kosong'}</p>
+            <button
+              class="buy-btn"
+              onclick="checkout('${produk.nama}', ${produk.harga}, ${produk.stok})"
+              ${produk.stok <= 0 ? "disabled" : ""}
+            >
+              ${produk.stok <= 0 ? "❌ Stok Habis" : "💬 Beli Sekarang"}
+            </button>
+          `;
+
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error("Gagal memuat produk:", err);
+      }
+    }
+
+    window.onload = loadProduk;
+  </script>
+</head>
+<body>
+  <header>
+    <div class="logo">🎮 ZYEN STORE</div>
+    <div>
+      <button class="contact-btn" onclick="hubungiAdmin()">Contact Admin</button>
+      <button class="login-btn">MASUK</button>
+    </div>
+  </header>
+
+  <nav class="tab-menu">
+    <button class="tab">🧠 Steal a brainrot</button>
+  </nav>
+
+  <main class="item-list">
+    <p>Loading produk...</p>
+  </main>
+</body>
+</html>

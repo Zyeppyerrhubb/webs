@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kelola Produk - ZYEN STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #2a003f, #4a0072);
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-produk {
+      max-width: 400px;
+      margin: 0 auto 40px;
+      background: #300049;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
+    }
+    .form-produk input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    .form-produk button {
+      width: 100%;
+      background: #28a745;
+      border: none;
+      padding: 10px;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .produk-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .produk-item {
+      background: #42005e;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    .produk-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+    .produk-info {
+      display: flex;
+      align-items: center;
+    }
+    .produk-text {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Tambah Produk Baru</h1>
+
+  <div class="form-produk">
+    <input type="text" id="nama" placeholder="Nama Produk" required />
+    <input type="number" id="harga" placeholder="Harga (contoh: 4000)" required />
+    <input type="number" id="stok" placeholder="Stok Awal" required />
+    <input type="text" id="gambar" placeholder="Link Gambar (boleh kosong)" />
+    <button onclick="tambahProduk()">Simpan Produk</button>
+  </div>
+
+  <h1>📦 Daftar Produk</h1>
+  <div class="produk-list" id="produkList">Loading...</div>
+
+  <script>
+    const baseURL = "https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev";
+
+    async function tambahProduk() {
+      const nama = document.getElementById("nama").value.trim();
+      const harga = parseInt(document.getElementById("harga").value);
+      const stok = parseInt(document.getElementById("stok").value);
+      const gambar = document.getElementById("gambar").value.trim();
+
+      if (!nama || isNaN(harga) || isNaN(stok)) {
+        alert("Isi semua data dengan benar!");
+        return;
+      }
+
+      const res = await fetch(`${baseURL}/api/admin/produk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nama, harga, stok, gambar })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+      loadProduk();
+    }
+
+    async function loadProduk() {
+      const res = await fetch(`${baseURL}/api/produk`);
+      const data = await res.json();
+      const container = document.getElementById("produkList");
+      container.innerHTML = "";
+
+      data.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "produk-item";
+        div.innerHTML = `
+          <div class="produk-info">
+            <img src="${p.gambar || 'https://via.placeholder.com/60x60?text=?'}" alt="${p.nama}" />
+            <div class="produk-text">
+              <strong>${p.nama}</strong><br>
+              Harga: Rp${p.harga.toLocaleString("id-ID")}<br>
+              Stok: ${p.stok}
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    loadProduk();
+  </script>
+</body>
+</html>

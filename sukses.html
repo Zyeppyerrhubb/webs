@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Struk Pembayaran - ZYEN STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a002b, #2d0052);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      padding: 50px 20px;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .struk {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+      animation: fadeIn 1s ease forwards;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow:
+        0 0 12px rgba(255, 204, 0, 0.15),
+        0 0 24px rgba(255, 204, 0, 0.2),
+        0 0 36px rgba(255, 204, 0, 0.3);
+    }
+
+    h1 {
+      color: #ffc400;
+      margin-bottom: 10px;
+      text-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      animation: fadeInUp 1.2s ease;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .btn-group {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background-color: #ffc400;
+      color: #1a002b;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #e6ae00;
+      transform: scale(1.05);
+    }
+
+    .error {
+      color: #ff4f4f;
+      font-weight: bold;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="struk" id="strukBox">
+    <h1>ZYEN STORE</h1>
+    <h2>✅ Pembayaran Berhasil 🎉</h2>
+    <p><strong>Nickname:</strong> <span id="nickname">-</span></p>
+    <p><strong>Produk:</strong> <span id="produk">-</span></p>
+    <p><strong>Jumlah:</strong> <span id="jumlah">-</span></p>
+    <p><strong>Metode Pembayaran:</strong> <span id="metode">-</span></p>
+    <p><strong>Total:</strong> <span id="total">-</span></p>
+
+    <div class="btn-group">
+      <a href="index.html" class="btn">Halaman Utama</a>
+      <a href="https://wa.me/6287814897547?text=Halo%20admin%2C%20saya%20perlu%20bantuan%20soal%20pesanan%20saya." class="btn" target="_blank">Bantuan</a>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+
+    if (!id) {
+      document.getElementById("strukBox").innerHTML = "<p class='error'>❌ ID pesanan tidak ditemukan di URL.</p>";
+      throw new Error("ID tidak ditemukan");
+    }
+
+    fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/status/${id}`)
+      .then(res => res.json())
+      .then(async (statusData) => {
+        if (statusData.status !== "berhasil") {
+          document.getElementById("strukBox").innerHTML = "<p class='error'>⚠️ Pembayaran belum berhasil.</p>";
+          return;
+        }
+
+        const allOrders = await fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/admin/pesanan`);
+        const orders = await allOrders.json();
+        const order = orders.find(o => o.id === id);
+
+        if (!order) {
+          document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Data pesanan tidak ditemukan.</p>";
+          return;
+        }
+
+        document.getElementById("nickname").innerText = order.nickname;
+        document.getElementById("produk").innerText = order.nama_produk;
+        document.getElementById("jumlah").innerText = order.jumlah;
+        document.getElementById("metode").innerText = order.metode;
+        document.getElementById("total").innerText = "Rp" + order.total.toLocaleString("id-ID");
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Gagal memuat data pesanan.</p>";
+      });
+  </script>
+</body>
+</html>

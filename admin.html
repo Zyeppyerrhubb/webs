@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Admin | ZYEN STORE</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f0f0f;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .top-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #00c853;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .btn:hover {
+      background: #00e676;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background: #292929;
+    }
+
+    tr:nth-child(even) {
+      background: #222;
+    }
+
+    .status-pending {
+      color: orange;
+    }
+
+    .status-berhasil {
+      color: #00e676;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 Dashboard Admin - ZYEN STORE</h1>
+
+  <div class="top-buttons">
+    <button class="btn" onclick="window.location.href='admin-produk.html'">🛒 Kelola Produk</button>
+  </div>
+
+  <table id="tabel-pesanan">
+    <thead>
+      <tr>
+        <th>Nickname</th>
+        <th>No WA</th>
+        <th>Produk</th>
+        <th>Jumlah</th>
+        <th>Total</th>
+        <th>Metode</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="daftar-pesanan">
+      <tr><td colspan="8">⏳ Memuat data...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev";
+
+    async function fetchPesanan() {
+      try {
+        const res = await fetch(`${API_URL}/api/admin/pesanan`);
+        const data = await res.json();
+        renderPesanan(data);
+      } catch (err) {
+        console.error("Gagal memuat data:", err);
+        const tbody = document.getElementById("daftar-pesanan");
+        tbody.innerHTML = `<tr><td colspan="8">❌ Gagal memuat data</td></tr>`;
+      }
+    }
+
+    async function updateStatus(id) {
+      try {
+        const res = await fetch(`${API_URL}/api/admin/pesanan/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "berhasil" })
+        });
+
+        if (res.ok) {
+          fetchPesanan(); // Refresh tabel
+        } else {
+          alert("❌ Gagal memperbarui status.");
+        }
+      } catch (err) {
+        console.error("Gagal update status:", err);
+        alert("❌ Terjadi kesalahan saat update status.");
+      }
+    }
+
+    function renderPesanan(pesanan) {
+      const tbody = document.getElementById("daftar-pesanan");
+      if (!pesanan.length) {
+        tbody.innerHTML = `<tr><td colspan="8">🚫 Belum ada pesanan.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      pesanan.forEach(p => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${p.nickname}</td>
+          <td>${p.nowa}</td>
+          <td>${p.nama_produk}</td>
+          <td>${p.jumlah}</td>
+          <td>Rp${p.total.toLocaleString("id-ID")}</td>
+          <td>${p.metode}</td>
+          <td class="${p.status === 'pending' ? 'status-pending' : 'status-berhasil'}">${p.status}</td>
+          <td>
+            ${p.status === "pending"
+              ? `<button class="btn" onclick="updateStatus('${p.id}')">Tandai Berhasil</button>`
+              : "✅ Selesai"
+            }
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    fetchPesanan();
+    setInterval(fetchPesanan, 5000);
+  </script>
+</body>
+</html>
