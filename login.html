@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - ZYEN STORE</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin:0; padding:0;
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh;
+      color:#fff;
+    }
+    .container {
+      background:#1e1e1e;
+      border-radius:8px;
+      width:350px;
+      padding:40px 30px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.5);
+    }
+    .container h1 {
+      font-size:24px;
+      margin-bottom:20px;
+      text-align:center;
+    }
+    .container label {
+      display:block;
+      margin-top:15px;
+      margin-bottom:5px;
+      font-size:14px;
+    }
+    .container input {
+      width:100%;
+      padding:10px 12px;
+      border:none;
+      border-radius:4px;
+      background:#2a2a2a;
+      color:#fff;
+      font-size:14px;
+    }
+    .container input:focus {
+      outline:2px solid #8e2de2;
+    }
+    .container button {
+      width:100%;
+      padding:12px;
+      margin-top:20px;
+      border:none;
+      border-radius:4px;
+      background:#8e2de2;
+      color:#fff;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .container button:hover {
+      background:#a23df0;
+    }
+    .switch {
+      text-align:center;
+      margin-top:15px;
+      font-size:13px;
+    }
+    .switch a {
+      text-decoration:none;
+      color:#8e2de2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Login ZYEN STORE</h1>
+    <form id="loginForm">
+      <label for="username">Username</label>
+      <input type="text" id="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" required>
+      <button type="submit">Masuk</button>
+    </form>
+    <div class="switch">
+      Belum punya akun? <a href="register.html">Daftar di sini</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const BASE = "https://63207fd07716.ngrok-free.app";
+
+    document.getElementById("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      const res = await fetch(`${BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username, password})
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', json.token);
+        Swal.fire('Berhasil','Login berhasil!','success').then(() => {
+          window.location.href = 'admin.html';
+        });
+      } else {
+        Swal.fire('Gagal', json.message || 'Login gagal', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
