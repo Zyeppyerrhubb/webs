@@ -110,34 +110,42 @@
       throw new Error("ID tidak ditemukan");
     }
 
-    const BASE_URL = "https://63207fd07716.ngrok-free.app";
+    // ambil BASE_URL dari backend.txt
+    fetch("backend.txt")
+      .then(res => res.text())
+      .then(BASE_URL => {
+        BASE_URL = BASE_URL.trim();
 
-    fetch(`${BASE_URL}/api/status/${id}`)
-      .then(res => res.json())
-      .then(async (statusData) => {
-        if (statusData.status !== "berhasil") {
-          document.getElementById("strukBox").innerHTML = "<p class='error'>⚠️ Pembayaran belum berhasil.</p>";
-          return;
-        }
+        fetch(`${BASE_URL}/api/status/${id}`)
+          .then(res => res.json())
+          .then(async (statusData) => {
+            if (statusData.status !== "berhasil") {
+              document.getElementById("strukBox").innerHTML = "<p class='error'>⚠️ Pembayaran belum berhasil.</p>";
+              return;
+            }
 
-        const allOrders = await fetch(`${BASE_URL}/api/admin/pesanan`);
-        const orders = await allOrders.json();
-        const order = orders.find(o => o.id === id);
+            const allOrders = await fetch(`${BASE_URL}/api/admin/pesanan`);
+            const orders = await allOrders.json();
+            const order = orders.find(o => o.id === id);
 
-        if (!order) {
-          document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Data pesanan tidak ditemukan.</p>";
-          return;
-        }
+            if (!order) {
+              document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Data pesanan tidak ditemukan.</p>";
+              return;
+            }
 
-        document.getElementById("nickname").innerText = order.nickname;
-        document.getElementById("produk").innerText = order.nama_produk;
-        document.getElementById("jumlah").innerText = order.jumlah;
-        document.getElementById("metode").innerText = order.metode;
-        document.getElementById("total").innerText = "Rp" + order.total.toLocaleString("id-ID");
+            document.getElementById("nickname").innerText = order.nickname;
+            document.getElementById("produk").innerText = order.nama_produk;
+            document.getElementById("jumlah").innerText = order.jumlah;
+            document.getElementById("metode").innerText = order.metode;
+            document.getElementById("total").innerText = "Rp" + order.total.toLocaleString("id-ID");
+          })
+          .catch(err => {
+            console.error(err);
+            document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Gagal memuat data pesanan.</p>";
+          });
       })
-      .catch(err => {
-        console.error(err);
-        document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Gagal memuat data pesanan.</p>";
+      .catch(() => {
+        document.getElementById("strukBox").innerHTML = "<p class='error'>❌ Gagal membaca backend.txt.</p>";
       });
   </script>
 </body>
