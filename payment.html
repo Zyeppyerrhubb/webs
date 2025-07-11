@@ -74,6 +74,19 @@
         0 0 10px rgba(170, 0, 255, 0.5),
         0 0 20px rgba(180, 0, 255, 0.4);
     }
+    #popup {
+      display: none;
+      text-align: center;
+      margin-top: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      animation: fadeIn 0.5s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -82,7 +95,7 @@
   </header>
 
   <div class="form-container">
-    <form id="checkoutForm">
+    <form id="form-checkout">
       <label>Nama Produk</label>
       <input type="text" id="nama" readonly />
 
@@ -112,6 +125,13 @@
 
       <button class="submit-btn" type="submit">💸 Checkout Sekarang</button>
     </form>
+
+    <!-- POPUP transfer manual -->
+    <div id="popup">
+      <h3>✅ Silakan transfer ke:</h3>
+      <p><strong>DANA / GOPAY:</strong> 087814897547</p>
+      <p>Setelah transfer, admin akan memproses pesanan kamu!</p>
+    </div>
   </div>
 
   <script src="checkout.js"></script>
