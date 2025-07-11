@@ -102,41 +102,11 @@
           throw new Error(result.message || "Gagal checkout");
         }
 
+        // Simpan ke localStorage (kalau mau dipakai lagi nanti)
         localStorage.setItem("checkoutData", JSON.stringify(data));
 
-        Swal.fire({
-          icon: "info",
-          title: "Menunggu Pembayaran",
-          html: `
-            <p>Data kamu sudah dikirim.</p>
-            <p>Transfer ke:</p>
-            <b>Dana / GoPay: 087814897547</b><br><br>
-            <small>Sistem akan mengecek otomatis setiap 3 detik...</small>
-          `,
-          allowOutsideClick: false,
-          showConfirmButton: false
-        });
-
-        const checkInterval = setInterval(async () => {
-          try {
-            const checkRes = await fetch(`${BASE_URL}/api/status/${id}`);
-            const checkData = await checkRes.json();
-
-            if (checkRes.ok && checkData.status === "paid") {
-              clearInterval(checkInterval);
-              Swal.fire({
-                icon: "success",
-                title: "Pembayaran Berhasil!",
-                text: "Pesanan kamu akan segera diproses.",
-                confirmButtonText: "Lanjut"
-              }).then(() => {
-                window.location.href = `sukses.html?id=${id}`;
-              });
-            }
-          } catch (err) {
-            console.error("Gagal cek status:", err);
-          }
-        }, 3000);
+        // ✅ redirect ke payment.html dengan ID
+        window.location.href = `payment.html?id=${id}`;
 
       } catch (err) {
         Swal.fire("Error", err.message || "Terjadi kesalahan saat mengirim data.", "error");
