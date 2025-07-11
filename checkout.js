@@ -1,4 +1,3 @@
-// file: checkout.js
 let BASE_URL = "";
 
 fetch("backend.txt")
@@ -22,11 +21,14 @@ inputNama.value = nama;
 inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
 inputJumlah.max = stok;
 
+// nilai default total saat awal
+inputTotal.value = "Rp0";
+
 inputJumlah.addEventListener("input", updateTotal);
 
 function updateTotal() {
   const jumlah = parseInt(inputJumlah.value);
-  if (isNaN(jumlah) || jumlah <= 0) {
+  if (!inputJumlah.value || isNaN(jumlah) || jumlah <= 0) {
     inputTotal.value = "Rp0";
   } else {
     const total = harga * jumlah;
