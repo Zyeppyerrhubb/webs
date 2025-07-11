@@ -74,19 +74,6 @@
         0 0 10px rgba(170, 0, 255, 0.5),
         0 0 20px rgba(180, 0, 255, 0.4);
     }
-    #popup {
-      display: none;
-      text-align: center;
-      margin-top: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 10px;
-      animation: fadeIn 0.5s ease-in-out forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
   </style>
 </head>
 <body>
@@ -95,7 +82,7 @@
   </header>
 
   <div class="form-container">
-    <form id="form-checkout">
+    <form id="checkoutForm">
       <label>Nama Produk</label>
       <input type="text" id="nama" readonly />
 
@@ -125,15 +112,29 @@
 
       <button class="submit-btn" type="submit">💸 Checkout Sekarang</button>
     </form>
-
-    <!-- POPUP transfer manual -->
-    <div id="popup">
-      <h3>✅ Silakan transfer ke:</h3>
-      <p><strong>DANA / GOPAY:</strong> 087814897547</p>
-      <p>Setelah transfer, admin akan memproses pesanan kamu!</p>
-    </div>
   </div>
 
-  <script src="checkout.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const namaInput = document.getElementById('nama');
+    const hargaInput = document.getElementById('harga');
+    const jumlahInput = document.getElementById('jumlah');
+    const totalInput = document.getElementById('total');
+
+    namaInput.value = urlParams.get('nama') || '';
+    const harga = parseInt(urlParams.get('harga')) || 0;
+    hargaInput.value = 'Rp ' + harga.toLocaleString('id-ID');
+    totalInput.value = 'Rp 0';
+
+    jumlahInput.addEventListener('input', () => {
+      const jumlah = parseInt(jumlahInput.value);
+      if (!jumlah || jumlah <= 0) {
+        totalInput.value = 'Rp 0';
+      } else {
+        const total = harga * jumlah;
+        totalInput.value = 'Rp ' + total.toLocaleString('id-ID');
+      }
+    });
+  </script>
 </body>
 </html>
