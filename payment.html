@@ -22,38 +22,60 @@
   <div class="loading" id="status-text">Status: pending</div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
+    let BASE_URL = "";
 
-    if (!id) {
-      document.getElementById("status-text").innerText = "ID transaksi tidak ditemukan";
-      throw new Error("ID tidak ditemukan");
-    }
-
-    async function cekStatus() {
+    async function loadBackendURL() {
       try {
-        const res = await fetch(`https://bccacea4-b100-4d02-9d5b-f1cbbfdb9b63-00-8ki0bygk7dr8.pike.replit.dev/api/status/${id}`);
-        const data = await res.json();
+        const res = await fetch("backend.txt");
+        const text = await res.text();
+        BASE_URL = text.trim();
 
-        if (data.status === "berhasil") {
-          document.getElementById("status-text").innerText = "Status: berhasil";
-          alert("Pembayaran berhasil!");
-          window.location.href = "sukses.html";
-        } else if (data.status === "pending") {
-          document.getElementById("status-text").innerText = "Status: pending";
-        } else {
-          document.getElementById("status-text").innerText = "Status tidak ditemukan";
-          alert("Pesanan tidak ditemukan.");
+        if (!BASE_URL.startsWith("http")) {
+          throw new Error("URL backend tidak valid");
         }
+
+        startPolling(); // mulai polling setelah backend URL siap
       } catch (err) {
-        document.getElementById("status-text").innerText = "Gagal memuat status";
+        document.getElementById("status-text").innerText = "Gagal ambil backend.txt";
+        console.error("Gagal load backend.txt:", err);
       }
     }
 
-    // cek pertama kali langsung
-    cekStatus();
-    // lalu polling setiap 3 detik
-    setInterval(cekStatus, 3000);
+    function startPolling() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get("id");
+
+      if (!id) {
+        document.getElementById("status-text").innerText = "ID transaksi tidak ditemukan";
+        return;
+      }
+
+      async function cekStatus() {
+        try {
+          const res = await fetch(`${BASE_URL}/api/status/${id}`);
+          const data = await res.json();
+
+          if (data.status === "berhasil") {
+            document.getElementById("status-text").innerText = "Status: berhasil";
+            alert("Pembayaran berhasil!");
+            window.location.href = "sukses.html";
+          } else if (data.status === "pending") {
+            document.getElementById("status-text").innerText = "Status: pending";
+          } else {
+            document.getElementById("status-text").innerText = "Status tidak ditemukan";
+            alert("Pesanan tidak ditemukan.");
+          }
+        } catch (err) {
+          document.getElementById("status-text").innerText = "Gagal memuat status";
+          console.error("Error saat cek status:", err);
+        }
+      }
+
+      cekStatus(); // pertama langsung cek
+      setInterval(cekStatus, 3000); // polling tiap 3 detik
+    }
+
+    loadBackendURL();
   </script>
 </body>
 </html>
