@@ -5,41 +5,43 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(base => {
       BASE_URL = base.trim();
-      initForm(); // baru jalan setelah BASE_URL siap
+      setupForm(); // baru mulai semua setelah BASE_URL siap
     });
 });
 
-function initForm() {
+function setupForm() {
   const url = new URLSearchParams(window.location.search);
   const nama = url.get("nama");
   const harga = parseInt(url.get("harga"));
   const stok = parseInt(url.get("stok"));
   const id_produk = url.get("id");
 
-  // isi input dari URL
-  document.getElementById("nama").value = nama || "";
-  document.getElementById("harga").value = `Rp${harga.toLocaleString("id-ID")}`;
-  document.getElementById("total").value = "Rp0";
+  const inputNama = document.getElementById("nama");
+  const inputHarga = document.getElementById("harga");
   const inputJumlah = document.getElementById("jumlah");
+  const inputTotal = document.getElementById("total");
+
+  inputNama.value = nama || "";
+  inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
   inputJumlah.max = stok;
+  inputTotal.value = "Rp0";
 
   inputJumlah.addEventListener("input", () => {
     const jumlah = parseInt(inputJumlah.value);
     const total = isNaN(jumlah) || jumlah <= 0 ? 0 : harga * jumlah;
-    document.getElementById("total").value = `Rp${total.toLocaleString("id-ID")}`;
+    inputTotal.value = `Rp${total.toLocaleString("id-ID")}`;
   });
 
-  // hanya jalan pas submit
   document.getElementById("form-checkout").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const jumlah = parseInt(document.getElementById("jumlah").value);
+    const jumlah = parseInt(inputJumlah.value);
     const nickname = document.getElementById("nickname").value;
     const nowa = document.getElementById("nowa").value;
     const metode = document.getElementById("metode").value;
 
     if (!jumlah || jumlah <= 0) return alert("Jumlah harus lebih dari 0!");
-    if (jumlah > stok) return alert("Jumlah melebihi stok tersedia!");
+    if (jumlah > stok) return alert("Jumlah melebihi stok!");
 
     try {
       const res = await fetch(`${BASE_URL}/checkout`, {
