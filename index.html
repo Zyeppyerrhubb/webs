@@ -120,6 +120,10 @@
       }
     }
 
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'");
+    }
+
     function checkout(nama, harga, stok) {
       if (!nama || !harga || !stok || stok <= 0) {
         alert("Data tidak valid atau stok kosong!");
@@ -146,11 +150,11 @@
           card.innerHTML = `
             <img src="${produk.gambar || 'https://via.placeholder.com/150/8e2de2/ffffff?text=ZYEN+STORE'}" alt="${produk.nama}">
             <p class="item-name">${produk.nama}</p>
-            <p class="item-price">Rp${produk.harga.toLocaleString("id-ID")}</p>
+            <p class="item-price">Rp${(produk.harga || 0).toLocaleString("id-ID")}</p>
             <p class="item-stock">Stok: ${produk.stok > 0 ? produk.stok : 'Kosong'}</p>
             <button
               class="buy-btn"
-              onclick="checkout('${produk.nama}', ${produk.harga}, ${produk.stok})"
+              onclick="checkout('${escapeQuotes(produk.nama)}', ${produk.harga}, ${produk.stok})"
               ${produk.stok <= 0 ? "disabled" : ""}
             >
               ${produk.stok <= 0 ? "❌ Stok Habis" : "💬 Beli Sekarang"}
@@ -161,7 +165,7 @@
 
       } catch (err) {
         console.error("Gagal memuat produk:", err);
-        document.querySelector(".item-list").innerHTML = "<p>Gagal memuat produk!</p>";
+        document.querySelector(".item-list").innerHTML = "<p>❌ Gagal memuat produk!</p>";
       }
     }
 
@@ -184,7 +188,7 @@
   </nav>
 
   <main class="item-list">
-    <p>Loading produk...</p>
+    <p>🔄 Sedang memuat produk...</p>
   </main>
 </body>
 </html>
