@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Struk Pembayaran - ZYEN STORE</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     body {
       background: linear-gradient(135deg, #1a002b, #2d0052);
@@ -83,6 +84,21 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .struk {
+        background: white;
+        box-shadow: none;
+        border: none;
+      }
+      .btn-group {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -110,7 +126,6 @@
       throw new Error("ID tidak ditemukan");
     }
 
-    // ambil BASE_URL dari backend.txt
     fetch("backend.txt")
       .then(res => res.text())
       .then(BASE_URL => {
@@ -138,6 +153,13 @@
             document.getElementById("jumlah").innerText = order.jumlah;
             document.getElementById("metode").innerText = order.metode;
             document.getElementById("total").innerText = "Rp" + order.total.toLocaleString("id-ID");
+
+            // 🎉 Confetti efek saat struk muncul
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
           })
           .catch(err => {
             console.error(err);
