@@ -92,14 +92,16 @@
     </tbody>
   </table>
 
+  <!-- Panggil backend.js -->
+  <script src="backend.js"></script>
   <script>
     let API_URL = "";
 
-    async function getBackendURL() {
-      const res = await fetch("backend.txt");
-      const text = await res.text();
-      API_URL = text.trim();
-    }
+    getBackendURL().then(url => {
+      API_URL = url;
+      fetchPesanan();
+      setInterval(fetchPesanan, 5000);
+    });
 
     async function fetchPesanan() {
       try {
@@ -162,11 +164,6 @@
         tbody.appendChild(row);
       });
     }
-
-    getBackendURL().then(() => {
-      fetchPesanan();
-      setInterval(fetchPesanan, 5000);
-    });
   </script>
 </body>
 </html>
