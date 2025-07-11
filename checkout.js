@@ -1,13 +1,18 @@
 let BASE_URL = "";
+let pollingInterval = null;
 
 window.addEventListener("DOMContentLoaded", () => {
   fetch("backend.txt")
     .then(res => res.text())
     .then(base => {
       BASE_URL = base.trim();
-      setupForm(); // baru mulai semua setelah BASE_URL siap
+      setupForm();
     });
 });
+
+window.onload = () => {
+  hidePopup(); // biar popup langsung ketutup saat halaman dibuka ulang
+};
 
 function setupForm() {
   const url = new URLSearchParams(window.location.search);
@@ -63,16 +68,21 @@ function setupForm() {
       if (data.status === "pending") {
         showPopup();
 
-        const interval = setInterval(async () => {
-          const statusRes = await fetch(`${BASE_URL}/status/${data.transaksi_id}`);
-          const statusData = await statusRes.json();
+        pollingInterval = setInterval(async () => {
+          try {
+            const statusRes = await fetch(`${BASE_URL}/status/${data.transaksi_id}`);
+            const statusData = await statusRes.json();
 
-          if (statusData.status === "berhasil") {
-            clearInterval(interval);
-            hidePopup();
-            Swal.fire("✅ Pembayaran Berhasil!", "Transaksi kamu sukses!", "success").then(() => {
-              window.location.href = "sukses.html";
-            });
+            if (statusData.status === "berhasil") {
+              clearInterval(pollingInterval);
+              pollingInterval = null;
+              hidePopup();
+              Swal.fire("✅ Pembayaran Berhasil!", "Transaksi kamu sukses!", "success").then(() => {
+                window.location.href = "sukses.html";
+              });
+            }
+          } catch (err) {
+            console.error("Gagal polling status transaksi:", err);
           }
         }, 3000);
       } else {
@@ -86,8 +96,14 @@ function setupForm() {
 }
 
 function showPopup() {
+  hidePopup(); // pastikan tidak ada popup lama
   document.getElementById("popup").style.display = "flex";
 }
+
 function hidePopup() {
   document.getElementById("popup").style.display = "none";
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
 }
