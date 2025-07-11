@@ -1,11 +1,21 @@
 <script>
   let BASE_URL = "";
 
-  // ambil URL backend dari backend.txt
   async function loadBackendURL() {
-    const res = await fetch("backend.txt");
-    const text = await res.text();
-    BASE_URL = text.trim();
+    try {
+      const res = await fetch("backend.txt");
+      const text = await res.text();
+      BASE_URL = text.trim();
+
+      if (!BASE_URL.startsWith("http")) {
+        throw new Error("backend.txt tidak valid");
+      }
+
+      initCheckout();
+    } catch (err) {
+      Swal.fire("Error", "Gagal ambil URL backend. Coba refresh halaman.", "error");
+      console.error("Gagal load backend.txt:", err);
+    }
   }
 
   async function initCheckout() {
@@ -19,9 +29,9 @@
     const inputJumlah = document.getElementById("jumlah");
     const inputTotal = document.getElementById("total");
 
-    inputNama.value = nama;
-    inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
-    inputJumlah.max = stok;
+    inputNama.value = nama || "";
+    inputHarga.value = isNaN(harga) ? "Rp0" : `Rp${harga.toLocaleString("id-ID")}`;
+    inputJumlah.max = isNaN(stok) ? 0 : stok;
 
     inputJumlah.addEventListener("input", updateTotal);
 
@@ -38,8 +48,8 @@
     document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      if (!BASE_URL) {
-        Swal.fire("Error", "Server belum siap, coba beberapa detik lagi.", "error");
+      if (!BASE_URL || BASE_URL.length < 5) {
+        Swal.fire("Gagal", "Server belum siap. Mohon tunggu beberapa detik lalu coba lagi.", "error");
         return;
       }
 
@@ -49,12 +59,12 @@
       const metode = document.getElementById("metode").value;
 
       if (!nickname || !nowa || isNaN(jumlah) || jumlah <= 0) {
-        Swal.fire("Gagal", "Mohon lengkapi semua data dengan benar.", "error");
+        Swal.fire("Gagal", "Mohon isi semua data dengan benar.", "error");
         return;
       }
 
       if (!/^08\d{8,13}$/.test(nowa)) {
-        Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format: 08xxxxxxxxxx", "error");
+        Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format 08xxxxxxxxxx", "error");
         return;
       }
 
@@ -74,8 +84,8 @@
 
       try {
         Swal.fire({
-          title: 'Memproses...',
-          html: 'Sedang mengirim data ke server...',
+          title: "Memproses...",
+          html: "Mengirim data ke server...",
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
@@ -88,50 +98,50 @@
 
         const result = await res.json();
 
-        if (res.ok) {
-          localStorage.setItem("checkoutData", JSON.stringify(data));
-
-          Swal.fire({
-            icon: 'info',
-            title: 'Menunggu Pembayaran',
-            html: 'Data kamu sudah dikirim. Mohon tunggu konfirmasi dari admin...',
-            allowOutsideClick: false,
-            showConfirmButton: false
-          });
-
-          const checkInterval = setInterval(async () => {
-            try {
-              const checkRes = await fetch(`${BASE_URL}/api/status/${id}`);
-              const checkData = await checkRes.json();
-
-              if (checkRes.ok && checkData.status === "paid") {
-                clearInterval(checkInterval);
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Pembayaran Berhasil!',
-                  text: 'Pesanan kamu sudah dibayar dan akan segera diproses.',
-                  confirmButtonText: 'Lanjut'
-                }).then(() => {
-                  window.location.href = `sukses.html?id=${id}`;
-                });
-              }
-            } catch (err) {
-              console.error("Gagal cek status:", err);
-            }
-          }, 3000);
-        } else {
-          Swal.fire("Gagal", result.message || "Gagal checkout", "error");
+        if (!res.ok) {
+          throw new Error(result.message || "Gagal checkout");
         }
+
+        localStorage.setItem("checkoutData", JSON.stringify(data));
+
+        Swal.fire({
+          icon: "info",
+          title: "Menunggu Pembayaran",
+          html: "Data kamu sudah dikirim. Tunggu konfirmasi dari admin...",
+          allowOutsideClick: false,
+          showConfirmButton: false
+        });
+
+        const checkInterval = setInterval(async () => {
+          try {
+            const checkRes = await fetch(`${BASE_URL}/api/status/${id}`);
+            const checkData = await checkRes.json();
+
+            if (checkRes.ok && checkData.status === "paid") {
+              clearInterval(checkInterval);
+              Swal.fire({
+                icon: "success",
+                title: "Pembayaran Berhasil!",
+                text: "Pesanan kamu akan segera diproses.",
+                confirmButtonText: "Lanjut"
+              }).then(() => {
+                window.location.href = `sukses.html?id=${id}`;
+              });
+            }
+          } catch (err) {
+            console.error("Gagal cek status:", err);
+          }
+        }, 3000);
+
       } catch (err) {
-        Swal.fire("Error", "Terjadi kesalahan saat mengirim data.", "error");
+        Swal.fire("Error", err.message || "Terjadi kesalahan saat mengirim data.", "error");
+        console.error("Checkout error:", err);
       }
     });
 
     updateTotal();
   }
 
-  // mulai dari sini
-  loadBackendURL().then(() => {
-    initCheckout();
-  });
+  // mulai proses
+  loadBackendURL();
 </script>
