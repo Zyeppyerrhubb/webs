@@ -130,7 +130,7 @@
         return;
       }
       const params = new URLSearchParams({ nama, harga, stok });
-      window.location.href = "checkout.html?" + params.toString();
+      window.location.href = "payment.html?" + params.toString(); // ✅ langsung ke payment.html
     }
 
     function hubungiAdmin() {
