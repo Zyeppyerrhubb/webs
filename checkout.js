@@ -21,14 +21,15 @@ inputNama.value = nama;
 inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
 inputJumlah.max = stok;
 
-// nilai default total saat awal
+// total default = Rp0
 inputTotal.value = "Rp0";
 
+// update total saat user isi jumlah
 inputJumlah.addEventListener("input", updateTotal);
 
 function updateTotal() {
   const jumlah = parseInt(inputJumlah.value);
-  if (!inputJumlah.value || isNaN(jumlah) || jumlah <= 0) {
+  if (isNaN(jumlah) || jumlah <= 0) {
     inputTotal.value = "Rp0";
   } else {
     const total = harga * jumlah;
@@ -98,26 +99,33 @@ document.getElementById("checkoutForm").addEventListener("submit", async functio
       body: JSON.stringify(data)
     });
 
-    // polling status
-    const checkInterval = setInterval(async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/api/status/${id}`);
-        const resData = await res.json();
-        if (res.ok && resData.status === "berhasil") {
-          clearInterval(checkInterval);
-          Swal.fire({
-            icon: "success",
-            title: "Pembayaran Berhasil!",
-            text: "Pesanan kamu akan segera diproses",
-            confirmButtonText: "Lanjut"
-          }).then(() => {
-            window.location.href = `sukses.html?id=${id}`;
-          });
-        }
-      } catch (err) {
-        console.error("Gagal cek status:", err);
+    // tunggu BASE_URL siap sebelum polling status
+    const waitForBaseURL = setInterval(() => {
+      if (BASE_URL !== "") {
+        clearInterval(waitForBaseURL);
+
+        const checkInterval = setInterval(async () => {
+          try {
+            const res = await fetch(`${BASE_URL}/api/status/${id}`);
+            const resData = await res.json();
+            if (res.ok && resData.status === "berhasil") {
+              clearInterval(checkInterval);
+              Swal.fire({
+                icon: "success",
+                title: "Pembayaran Berhasil!",
+                text: "Pesanan kamu akan segera diproses",
+                confirmButtonText: "Lanjut"
+              }).then(() => {
+                window.location.href = `sukses.html?id=${id}`;
+              });
+            }
+          } catch (err) {
+            console.error("Gagal cek status:", err);
+          }
+        }, 3000);
       }
-    }, 3000);
+    }, 100);
+
   } catch (err) {
     Swal.fire("Error", "Gagal kirim data ke server", "error");
   }
