@@ -102,10 +102,10 @@
           throw new Error(result.message || "Gagal checkout");
         }
 
-        // Simpan ke localStorage
+        // Simpan data ke localStorage
         localStorage.setItem("checkoutData", JSON.stringify(data));
 
-        // Tampilkan popup instruksi
+        // Tampilkan popup instruksi transfer
         await Swal.fire({
           title: "Berhasil checkout!",
           html: `
@@ -119,31 +119,8 @@
           confirmButtonText: "Saya Sudah Transfer"
         });
 
-        // Mulai polling status
-        const interval = setInterval(async () => {
-          try {
-            const statusRes = await fetch(`${BASE_URL}/api/status?id=${id}`);
-            const statusData = await statusRes.json();
-
-            if (statusData.status === "berhasil") {
-              clearInterval(interval);
-
-              Swal.fire({
-                title: "Pembayaran Berhasil!",
-                icon: "success",
-                html: "Pesanan kamu sedang diproses!",
-                timer: 3000,
-                showConfirmButton: false
-              });
-
-              setTimeout(() => {
-                window.location.href = "sukses.html";
-              }, 3000);
-            }
-          } catch (err) {
-            console.error("Gagal cek status:", err);
-          }
-        }, 3000);
+        // Redirect ke payment.html dengan parameter lengkap
+        window.location.href = `payment.html?nama=${encodeURIComponent(nama)}&harga=${harga}&stok=${stok}&id=${id}`;
 
       } catch (err) {
         Swal.fire("Error", err.message || "Terjadi kesalahan saat mengirim data.", "error");
