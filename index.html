@@ -124,12 +124,17 @@
       return str.replace(/'/g, "\\'");
     }
 
-    function checkout(nama, harga, stok) {
+    function checkout(nama, harga, stok, id) {
       if (!nama || !harga || !stok || stok <= 0) {
         alert("Data tidak valid atau stok kosong!");
         return;
       }
-      const params = new URLSearchParams({ nama, harga, stok });
+      const params = new URLSearchParams({ 
+        nama, 
+        harga, 
+        stok,
+        id
+      });
       window.location.href = "payment.html?" + params.toString(); // ✅ langsung ke payment.html
     }
 
@@ -154,7 +159,7 @@
             <p class="item-stock">Stok: ${produk.stok > 0 ? produk.stok : 'Kosong'}</p>
             <button
               class="buy-btn"
-              onclick="checkout('${escapeQuotes(produk.nama)}', ${produk.harga}, ${produk.stok})"
+              onclick="checkout('${escapeQuotes(produk.nama)}', ${produk.harga}, ${produk.stok}, ${produk.id})"
               ${produk.stok <= 0 ? "disabled" : ""}
             >
               ${produk.stok <= 0 ? "❌ Stok Habis" : "💬 Beli Sekarang"}
