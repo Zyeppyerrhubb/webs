@@ -11,7 +11,7 @@ const url = new URLSearchParams(window.location.search);
 const nama = url.get("nama");
 const harga = parseInt(url.get("harga"));
 const stok = parseInt(url.get("stok"));
-const id_produk = url.get("id"); // ✅ fix: ambil "id", bukan "id_produk"
+const id_produk = url.get("id");
 
 const inputNama = document.getElementById("nama");
 const inputHarga = document.getElementById("harga");
@@ -20,6 +20,7 @@ const inputTotal = document.getElementById("total");
 
 inputNama.value = nama;
 inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
+inputTotal.value = "Rp0";
 inputJumlah.max = stok;
 
 inputJumlah.addEventListener("input", updateTotal);
@@ -37,6 +38,10 @@ function updateTotal() {
 document.getElementById("form-checkout").addEventListener("submit", async (e) => {
   e.preventDefault();
   const jumlah = parseInt(inputJumlah.value);
+  const nickname = document.getElementById("nickname").value;
+  const nowa = document.getElementById("nowa").value;
+  const metode = document.getElementById("metode").value;
+
   if (!jumlah || jumlah <= 0) {
     alert("Jumlah harus lebih dari 0!");
     return;
@@ -50,6 +55,9 @@ document.getElementById("form-checkout").addEventListener("submit", async (e) =>
       harga,
       jumlah,
       id: id_produk,
+      nickname,
+      nowa,
+      metode
     }),
   });
 
@@ -65,8 +73,9 @@ document.getElementById("form-checkout").addEventListener("submit", async (e) =>
       if (statusData.status === "berhasil") {
         clearInterval(interval);
         hidePopup();
-        alert("✅ Pembayaran berhasil!");
-        window.location.href = "sukses.html";
+        Swal.fire("✅ Pembayaran Berhasil!", "Transaksi kamu sukses!", "success").then(() => {
+          window.location.href = "sukses.html";
+        });
       }
     }, 3000);
   } else {
@@ -74,13 +83,10 @@ document.getElementById("form-checkout").addEventListener("submit", async (e) =>
   }
 });
 
-// popup instruksi
 function showPopup() {
-  const popup = document.getElementById("popup");
-  popup.style.display = "block";
+  document.getElementById("popup").style.display = "flex";
 }
 
 function hidePopup() {
-  const popup = document.getElementById("popup");
-  popup.style.display = "none";
+  document.getElementById("popup").style.display = "none";
 }
