@@ -38,6 +38,11 @@
     document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
+      if (!BASE_URL) {
+        Swal.fire("Error", "Server belum siap, coba beberapa detik lagi.", "error");
+        return;
+      }
+
       const nickname = document.getElementById("nickname").value.trim();
       const nowa = document.getElementById("nowa").value.trim();
       const jumlah = parseInt(document.getElementById("jumlah").value);
@@ -107,7 +112,7 @@
                   text: 'Pesanan kamu sudah dibayar dan akan segera diproses.',
                   confirmButtonText: 'Lanjut'
                 }).then(() => {
-                    window.location.href = `sukses.html?id=${id}`;
+                  window.location.href = `sukses.html?id=${id}`;
                 });
               }
             } catch (err) {
