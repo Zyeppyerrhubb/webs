@@ -51,27 +51,50 @@
   <script>
     let API_URL = "";
 
-    // Ambil URL backend dari backend.txt
     fetch("backend.txt")
       .then(res => res.text())
       .then(url => {
         API_URL = url.trim();
         console.log("✅ Backend URL:", API_URL);
-        startCheckingStatus();
+        mulaiCheckout();
       })
       .catch(err => {
         console.error("❌ Gagal ambil backend.txt:", err);
         document.querySelector(".loading").textContent = "Gagal memuat backend.";
       });
 
-    function startCheckingStatus() {
+    async function mulaiCheckout() {
       const urlParams = new URLSearchParams(window.location.search);
-      const id = urlParams.get("id");
-      if (!id) {
-        document.querySelector(".loading").textContent = "ID pesanan tidak ditemukan.";
+      const nama = urlParams.get("nama");
+      const harga = urlParams.get("harga");
+      const stok = urlParams.get("stok");
+
+      if (!nama || !harga || !stok) {
+        document.querySelector(".loading").textContent = "Data checkout tidak lengkap!";
         return;
       }
 
+      try {
+        const res = await fetch(`${API_URL}/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama, harga, stok })
+        });
+        const data = await res.json();
+
+        if (data.id) {
+          console.log("✅ Checkout berhasil, ID:", data.id);
+          startPolling(data.id);
+        } else {
+          throw new Error("Checkout gagal!");
+        }
+      } catch (err) {
+        console.error("❌ Gagal checkout:", err);
+        document.querySelector(".loading").textContent = "Gagal melakukan checkout.";
+      }
+    }
+
+    function startPolling(id) {
       const interval = setInterval(async () => {
         try {
           const res = await fetch(`${API_URL}/api/status/${id}`);
