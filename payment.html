@@ -74,6 +74,26 @@
         0 0 10px rgba(170, 0, 255, 0.5),
         0 0 20px rgba(180, 0, 255, 0.4);
     }
+
+    #popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .popup-content {
+      background: #2c004d;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -82,7 +102,7 @@
   </header>
 
   <div class="form-container">
-    <form id="checkoutForm">
+    <form id="form-checkout">
       <label>Nama Produk</label>
       <input type="text" id="nama" readonly />
 
@@ -114,27 +134,14 @@
     </form>
   </div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const namaInput = document.getElementById('nama');
-    const hargaInput = document.getElementById('harga');
-    const jumlahInput = document.getElementById('jumlah');
-    const totalInput = document.getElementById('total');
+  <div id="popup">
+    <div class="popup-content">
+      <h2>🔄 Menunggu Pembayaran</h2>
+      <p>Silakan transfer ke nomor tujuan: <br><strong>087814897547</strong></p>
+      <p>(Dana / GoPay)</p>
+    </div>
+  </div>
 
-    namaInput.value = urlParams.get('nama') || '';
-    const harga = parseInt(urlParams.get('harga')) || 0;
-    hargaInput.value = 'Rp ' + harga.toLocaleString('id-ID');
-    totalInput.value = 'Rp 0';
-
-    jumlahInput.addEventListener('input', () => {
-      const jumlah = parseInt(jumlahInput.value);
-      if (!jumlah || jumlah <= 0) {
-        totalInput.value = 'Rp 0';
-      } else {
-        const total = harga * jumlah;
-        totalInput.value = 'Rp ' + total.toLocaleString('id-ID');
-      }
-    });
-  </script>
+  <script src="checkout.js"></script>
 </body>
 </html>
