@@ -112,8 +112,13 @@
     let BASE = "";
 
     async function loadBackendURL() {
-      const res = await fetch("backend.txt");
-      BASE = (await res.text()).trim();
+      try {
+        const res = await fetch("backend.txt");
+        BASE = (await res.text()).trim();
+        console.log("🔗 Backend:", BASE);
+      } catch (e) {
+        console.error("Gagal membaca backend.txt:", e);
+      }
     }
 
     function checkout(nama, harga, stok) {
@@ -163,7 +168,7 @@
 
     window.onload = async () => {
       await loadBackendURL();
-      await loadProduk();
+      if (BASE) await loadProduk();
     };
   </script>
 </head>
