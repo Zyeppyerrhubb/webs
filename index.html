@@ -135,7 +135,7 @@
 
     async function loadProduk() {
       try {
-        const res = await fetch(`${BASE}/api/produk`);
+        const res = await fetch(`${BASE}/produk`);
         const data = await res.json();
         const container = document.querySelector(".item-list");
         container.innerHTML = "";
