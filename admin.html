@@ -110,7 +110,7 @@
 
     async function fetchPesanan() {
       try {
-        const res = await fetch(`${API_URL}/pesanan`);
+        const res = await fetch(`${API_URL}/api/pesanan`);
         const data = await res.json();
         renderPesanan(data);
       } catch (err) {
@@ -122,7 +122,7 @@
 
     async function updateStatus(id) {
       try {
-        const res = await fetch(`${API_URL}/ubah_status/${id}`, {
+        const res = await fetch(`${API_URL}/api/ubah_status/${id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "berhasil" })
