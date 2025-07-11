@@ -103,7 +103,7 @@
 
     async function fetchPesanan() {
       try {
-        const res = await fetch(`${API_URL}/api/admin/pesanan`);
+        const res = await fetch(`${API_URL}/pesanan`);
         const data = await res.json();
         renderPesanan(data);
       } catch (err) {
@@ -115,8 +115,8 @@
 
     async function updateStatus(id) {
       try {
-        const res = await fetch(`${API_URL}/api/admin/pesanan/${id}`, {
-          method: "PUT",
+        const res = await fetch(`${API_URL}/ubah_status/${id}`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "berhasil" })
         });
@@ -163,7 +163,6 @@
       });
     }
 
-    // mulai dari sini
     getBackendURL().then(() => {
       fetchPesanan();
       setInterval(fetchPesanan, 5000);
