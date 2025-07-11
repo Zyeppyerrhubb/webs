@@ -5,7 +5,7 @@ window.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(base => {
       BASE_URL = base.trim();
-      initForm(); // lanjut kalau BASE_URL udah siap
+      initForm(); // baru jalan setelah BASE_URL siap
     });
 });
 
@@ -16,43 +16,30 @@ function initForm() {
   const stok = parseInt(url.get("stok"));
   const id_produk = url.get("id");
 
-  const inputNama = document.getElementById("nama");
-  const inputHarga = document.getElementById("harga");
+  // isi input dari URL
+  document.getElementById("nama").value = nama || "";
+  document.getElementById("harga").value = `Rp${harga.toLocaleString("id-ID")}`;
+  document.getElementById("total").value = "Rp0";
   const inputJumlah = document.getElementById("jumlah");
-  const inputTotal = document.getElementById("total");
-
-  inputNama.value = nama || "";
-  inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
-  inputTotal.value = "Rp0";
   inputJumlah.max = stok;
 
   inputJumlah.addEventListener("input", () => {
     const jumlah = parseInt(inputJumlah.value);
-    if (isNaN(jumlah) || jumlah <= 0) {
-      inputTotal.value = "Rp0";
-    } else {
-      const total = harga * jumlah;
-      inputTotal.value = `Rp${total.toLocaleString("id-ID")}`;
-    }
+    const total = isNaN(jumlah) || jumlah <= 0 ? 0 : harga * jumlah;
+    document.getElementById("total").value = `Rp${total.toLocaleString("id-ID")}`;
   });
 
+  // hanya jalan pas submit
   document.getElementById("form-checkout").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const jumlah = parseInt(inputJumlah.value);
+    const jumlah = parseInt(document.getElementById("jumlah").value);
     const nickname = document.getElementById("nickname").value;
     const nowa = document.getElementById("nowa").value;
     const metode = document.getElementById("metode").value;
 
-    if (!jumlah || jumlah <= 0) {
-      alert("Jumlah harus lebih dari 0!");
-      return;
-    }
-
-    if (jumlah > stok) {
-      alert("Jumlah melebihi stok tersedia!");
-      return;
-    }
+    if (!jumlah || jumlah <= 0) return alert("Jumlah harus lebih dari 0!");
+    if (jumlah > stok) return alert("Jumlah melebihi stok tersedia!");
 
     try {
       const res = await fetch(`${BASE_URL}/checkout`, {
@@ -90,7 +77,7 @@ function initForm() {
         alert("❌ Gagal membuat transaksi.");
       }
     } catch (err) {
-      alert("Terjadi kesalahan jaringan saat checkout.");
+      alert("Terjadi kesalahan saat proses checkout.");
       console.error(err);
     }
   });
@@ -99,7 +86,6 @@ function initForm() {
 function showPopup() {
   document.getElementById("popup").style.display = "flex";
 }
-
 function hidePopup() {
   document.getElementById("popup").style.display = "none";
 }
