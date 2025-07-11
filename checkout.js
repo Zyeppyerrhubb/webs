@@ -49,7 +49,7 @@ function setupForm() {
     if (jumlah > stok) return alert("Jumlah melebihi stok!");
 
     try {
-      const res = await fetch(`${BASE_URL}/checkout`, {
+      const res = await fetch(`${BASE_URL}/api/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -70,7 +70,7 @@ function setupForm() {
 
         pollingInterval = setInterval(async () => {
           try {
-            const statusRes = await fetch(`${BASE_URL}/status/${data.transaksi_id}`);
+            const statusRes = await fetch(`${BASE_URL}/api/status/${data.transaksi_id}`);
             const statusData = await statusRes.json();
 
             if (statusData.status === "berhasil") {
