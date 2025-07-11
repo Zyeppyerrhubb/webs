@@ -107,7 +107,12 @@
         Swal.fire({
           icon: "info",
           title: "Menunggu Pembayaran",
-          html: "Data kamu sudah dikirim. Tunggu konfirmasi dari admin...",
+          html: `
+            <p>Data kamu sudah dikirim.</p>
+            <p>Transfer ke:</p>
+            <b>Dana / GoPay: 087814897547</b><br><br>
+            <small>Sistem akan mengecek otomatis setiap 3 detik...</small>
+          `,
           allowOutsideClick: false,
           showConfirmButton: false
         });
@@ -142,6 +147,5 @@
     updateTotal();
   }
 
-  // mulai proses
   loadBackendURL();
 </script>
