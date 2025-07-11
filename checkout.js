@@ -1,24 +1,121 @@
-<script>
-  let BASE_URL = "";
-
-  async function loadBackendURL() {
-    try {
-      const res = await fetch("backend.txt");
-      const text = await res.text();
-      BASE_URL = text.trim();
-
-      if (!BASE_URL.startsWith("http")) {
-        throw new Error("backend.txt tidak valid");
-      }
-
-      initCheckout();
-    } catch (err) {
-      Swal.fire("Error", "Gagal ambil URL backend. Coba refresh halaman.", "error");
-      console.error("Gagal load backend.txt:", err);
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout | ZYEN STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* styling sama kayak yang kamu kirim, tidak diubah */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #1a0033, #32004d);
+      color: white;
     }
-  }
+    header {
+      background-color: #1a1a1a;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-weight: bold;
+      font-size: 24px;
+      color: white;
+    }
+    .form-container {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 25px;
+      border-radius: 12px;
+      background: rgba(90, 0, 130, 0.15);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 0 12px rgba(150, 0, 255, 0.2),
+        0 0 24px rgba(120, 0, 255, 0.25),
+        0 0 48px rgba(90, 0, 255, 0.3),
+        0 0 72px rgba(255, 0, 255, 0.2);
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 14px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .submit-btn {
+      background: #8e2de2;
+      border: none;
+      padding: 12px;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .submit-btn:hover {
+      background: #a23df0;
+      box-shadow:
+        0 0 10px rgba(170, 0, 255, 0.5),
+        0 0 20px rgba(180, 0, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">💳 ZYEN STORE - Payment</div>
+  </header>
 
-  async function initCheckout() {
+  <div class="form-container">
+    <form id="checkoutForm">
+      <label>Nama Produk</label>
+      <input type="text" id="nama" readonly />
+
+      <label>Harga Satuan</label>
+      <input type="text" id="harga" readonly />
+
+      <label>Jumlah</label>
+      <input type="number" id="jumlah" placeholder="Masukkan jumlah pembelian" />
+
+      <label>Total</label>
+      <input type="text" id="total" readonly />
+
+      <label>Nickname Game</label>
+      <input type="text" id="nickname" placeholder="Masukkan nickname kamu" />
+
+      <label>Nomor WhatsApp</label>
+      <input type="text" id="nowa" placeholder="Contoh: 08xxxxxxxxxx" />
+
+      <label>Metode Pembayaran</label>
+      <select id="metode">
+        <option value="QRIS">QRIS</option>
+        <option value="DANA">DANA</option>
+        <option value="OVO">OVO</option>
+        <option value="GOPAY">GoPay</option>
+        <option value="SHOPEEPAY">ShopeePay</option>
+      </select>
+
+      <button class="submit-btn" type="submit">💸 Checkout Sekarang</button>
+    </form>
+  </div>
+
+  <script>
     const url = new URLSearchParams(window.location.search);
     const nama = url.get("nama");
     const harga = parseInt(url.get("harga"));
@@ -29,9 +126,9 @@
     const inputJumlah = document.getElementById("jumlah");
     const inputTotal = document.getElementById("total");
 
-    inputNama.value = nama || "";
-    inputHarga.value = isNaN(harga) ? "Rp0" : `Rp${harga.toLocaleString("id-ID")}`;
-    inputJumlah.max = isNaN(stok) ? 0 : stok;
+    inputNama.value = nama;
+    inputHarga.value = `Rp${harga.toLocaleString("id-ID")}`;
+    inputJumlah.max = stok;
 
     inputJumlah.addEventListener("input", updateTotal);
 
@@ -45,13 +142,17 @@
       }
     }
 
+    let BASE_URL = "";
+
+    fetch("backend.txt")
+      .then(res => res.text())
+      .then(base => {
+        BASE_URL = base.trim();
+        updateTotal();
+      });
+
     document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      if (!BASE_URL || BASE_URL.length < 5) {
-        Swal.fire("Gagal", "Server belum siap. Mohon tunggu beberapa detik lalu coba lagi.", "error");
-        return;
-      }
 
       const nickname = document.getElementById("nickname").value.trim();
       const nowa = document.getElementById("nowa").value.trim();
@@ -59,17 +160,17 @@
       const metode = document.getElementById("metode").value;
 
       if (!nickname || !nowa || isNaN(jumlah) || jumlah <= 0) {
-        Swal.fire("Gagal", "Mohon isi semua data dengan benar.", "error");
+        Swal.fire("Gagal", "Mohon lengkapi semua data dengan benar.", "error");
         return;
       }
 
       if (!/^08\d{8,13}$/.test(nowa)) {
-        Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format 08xxxxxxxxxx", "error");
+        Swal.fire("Gagal", "Nomor WA tidak valid. Gunakan format: 08xxxxxxxxxx", "error");
         return;
       }
 
       const total = harga * jumlah;
-      const id = crypto.randomUUID();
+      let id = url.get("id") || crypto.randomUUID();
 
       const data = {
         id,
@@ -84,8 +185,8 @@
 
       try {
         Swal.fire({
-          title: "Memproses...",
-          html: "Mengirim data ke server...",
+          title: 'Memproses...',
+          html: 'Sedang mengirim data ke server...',
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
@@ -98,38 +199,55 @@
 
         const result = await res.json();
 
-        if (!res.ok) {
-          throw new Error(result.message || "Gagal checkout");
+        if (res.ok) {
+          Swal.fire({
+            title: 'Tunggu Konfirmasi Admin',
+            html: `
+              <div style="text-align:left; font-size:14px;">
+                <p><strong>Metode Pembayaran:</strong> ${metode}</p>
+                <p><strong>Total:</strong> Rp${total.toLocaleString("id-ID")}</p>
+                <p><strong>Silakan transfer ke:</strong></p>
+                <div style="background:#f3f3f3;padding:10px;border-radius:6px;color:#333">
+                  <strong>Nomor:</strong> 087814897547<br>
+                  <strong>Nama:</strong> ZYEN STORE<br>
+                  <strong>Bank / e-Wallet:</strong> ${metode}
+                </div>
+                <p style="margin-top:10px;">Setelah transfer, tunggu admin konfirmasi.<br><strong>Halaman ini akan otomatis lanjut jika pembayaran berhasil.</strong></p>
+              </div>
+            `,
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+
+          const checkInterval = setInterval(async () => {
+            try {
+              const checkRes = await fetch(`${BASE_URL}/api/status/${id}`);
+              const checkData = await checkRes.json();
+
+              if (checkRes.ok && checkData.status === "berhasil") {
+                clearInterval(checkInterval);
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Pembayaran Berhasil!',
+                  text: 'Pesanan kamu akan segera diproses.',
+                  confirmButtonText: 'Lanjut'
+                }).then(() => {
+                  window.location.href = `sukses.html?id=${id}`;
+                });
+              }
+            } catch (err) {
+              console.error("Gagal cek status:", err);
+            }
+          }, 3000);
+        } else {
+          Swal.fire("Gagal", result.message || "Gagal checkout", "error");
         }
-
-        // Simpan data ke localStorage
-        localStorage.setItem("checkoutData", JSON.stringify(data));
-
-        // Tampilkan popup instruksi transfer
-        await Swal.fire({
-          title: "Berhasil checkout!",
-          html: `
-            <p>Silakan transfer ke:</p>
-            <b>DANA / GoPay:</b><br>
-            <code>087814897547</code><br><br>
-            Setelah transfer, admin akan memproses pesanan kamu.<br>
-            <small>Menunggu pembayaran...</small>
-          `,
-          icon: "info",
-          confirmButtonText: "Saya Sudah Transfer"
-        });
-
-        // Redirect ke payment.html dengan parameter lengkap
-        window.location.href = `payment.html?nama=${encodeURIComponent(nama)}&harga=${harga}&stok=${stok}&id=${id}`;
-
       } catch (err) {
-        Swal.fire("Error", err.message || "Terjadi kesalahan saat mengirim data.", "error");
-        console.error("Checkout error:", err);
+        Swal.fire("Error", "Terjadi kesalahan saat mengirim data.", "error");
       }
     });
-
-    updateTotal();
-  }
-
-  loadBackendURL();
-</script>
+  </script>
+</body>
+</html>
